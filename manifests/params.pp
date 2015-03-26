@@ -6,9 +6,7 @@
 class consul::params {
 
   $install_method    = 'url'
-  $package_name      = 'consul'
   $package_ensure    = 'latest'
-  $ui_package_name   = 'consul_ui'
   $ui_package_ensure = 'latest'
   $version = '0.4.1'
 
@@ -21,6 +19,27 @@ class consul::params {
   }
 
   $os = downcase($::kernel)
+
+  case $::operatingsystem {
+    'RedHat', 'CentOS', 'Fedora', 'Scientific', 'Amazon', 'OracleLinux', 'SLC': {
+      # main application
+      $package_name = [ 'consul' ]
+      $ui_package_name = [ 'consul-web-ui' ]
+    }
+    'Debian', 'Ubuntu': {
+      # main application
+      $package_name = [ 'consul' ]
+      $ui_package_name = [ 'consul-web-ui' ]
+    }
+    'OpenSuSE': {
+      $package_name = [ 'consul' ]
+      $ui_package_name = [ 'consul-web-ui' ]
+    }
+    default: {
+      fail("\"${module_name}\" provides no package default value
+            for \"${::operatingsystem}\"")
+    }
+  }
 
   if $::operatingsystem == 'Ubuntu' {
     if versioncmp($::lsbdistrelease, '8.04') < 1 {
